@@ -1,8 +1,6 @@
 name: Build iOS IPA
 
 on:
-  push:
-    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
@@ -22,17 +20,23 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Re-generate iOS Project Structure
+      - name: Create iOS Project
         run: flutter create . --platforms=ios
 
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Build IPA (Unsigned)
-        run: flutter build ipa --no-codesign
+      - name: Build Payload IPA
+        run: |
+          flutter build ios --release --no-codesign
+          mkdir Payload
+          mv build/ios/iphoneos/Runner.app Payload/
+          zip -r AradServer.ipa Payload
 
-      - name: Upload IPA Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: ios-build
-          path: build/ios/ipa/*.ipa
+          tag_name: v1.0.0
+          files: AradServer.ipa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
