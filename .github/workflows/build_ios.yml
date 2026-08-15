@@ -22,6 +22,9 @@ jobs:
         with:
           channel: 'stable'
 
+      - name: Re-generate iOS Project Structure
+        run: flutter create . --platforms=ios
+
       - name: Install Dependencies
         run: flutter pub get
 
